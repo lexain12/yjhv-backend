@@ -6,9 +6,9 @@ import time
 import os
 from xml.etree import ElementTree as ET
 import re
-import room_hadler
 from bs4 import BeautifulSoup
 from datetime import datetime
+import room_hadler as rh
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -17,7 +17,7 @@ room_status = {}
 
 DOCKER_CONTAINER_URL = os.getenv("MOCK_URL", "http://localhost:5001")
 
-roomHandler = room_hadler.RoomHandler("config/roomslist.csv")
+roomHandler = rh.RoomHandler("config/roomslist.csv")
 
 # Preloading schemes of campus and buildings
 SCHEME_DIR = "schemes"
@@ -140,6 +140,9 @@ def get_schedule(course_id):
 def get_room_info(scheme_id):
     if 0 <= scheme_id < len(SCHEMES):
         extracted_names = extract_mtg_names(SCHEMES[scheme_id]["content"])
+        # в дальнейшем хочу получать схемы через csv, a svg юзать как почва для заполнения инфы для csv
+        # extracted_names = roomHandler.get_rooms_in_scheme(scheme_id)
+        print(extracted_names)
         roomArray = []
         for roomName in extracted_names:
             # Здесь можно добавить логику получения реального статуса комнаты
@@ -149,7 +152,7 @@ def get_room_info(scheme_id):
                               "name": roomName, 
                               "count": currentLoad, 
                               "maxCount": maxLoad, 
-                              "percentLoad": currentLoad / maxLoad * 100
+                              "percentLoad": f"{currentLoad / maxLoad * 100:.1f}"
             })
 
         return jsonify(roomArray)
