@@ -7,7 +7,7 @@ services:
     depends_on:
       - mock-server
     environment:
-      - MOCK_URL=http://mock-server:5001/room_data
+      - MOCK_URL=http://mock-server:5001
 
   mock-server:
     build:
