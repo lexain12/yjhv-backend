@@ -1,0 +1,9 @@
+scheme_id,      room_name,      max_load
+0,              niiyaf,         10
+0,              wardrobe,       5
+1,              living_room,    15
+1,              bedroom,        8
+2,              kitchen,        6
+2,              bathroom,       3
+3,              office,         12
+3,              storage,        4

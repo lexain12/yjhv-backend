@@ -6,6 +6,7 @@ import time
 import os
 from xml.etree import ElementTree as ET
 import re
+import room_hadler
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -13,6 +14,8 @@ CORS(app, resources={r"/*": {"origins": "*"}})
 room_status = {}
 
 DOCKER_CONTAINER_URL = os.getenv("MOCK_URL", "http://localhost:5001")
+
+roomHandler = room_hadler.RoomHandler("config/roomslist.csv")
 
 # Preloading schemes of campus and buildings
 SCHEME_DIR = "schemes"
@@ -62,7 +65,14 @@ def get_room_info(scheme_id):
         roomArray = []
         for roomName in extracted_names:
             # Здесь можно добавить логику получения реального статуса комнаты
-            roomArray.append({"id": roomName, "name": roomName, "count": 10})
+            currentLoad = 10
+            maxLoad = roomHandler.get_max_users(scheme_id, roomName)
+            roomArray.append({"id": roomName, 
+                              "name": roomName, 
+                              "count": currentLoad, 
+                              "maxCount": maxLoad, 
+                              "percentLoad": currentLoad / maxLoad * 100
+            })
 
         return jsonify(roomArray)
 
