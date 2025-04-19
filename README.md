@@ -23,3 +23,13 @@ docker-compose up --build
 ```
 curl localhost:8080/rooms/0
 ```
+
+Ендпоинты на данный момент:
+
+"/schemes" - получение всех схем(этажи здания)
+
+"/scheme/<int:scheme_id>" - получение конкретной схемы
+
+"/schedule/<int:course_id>" - получение расписания аудитории
+
+"/rooms/<int:scheme_id>" - получение информации обо всех комнатах в схеме
