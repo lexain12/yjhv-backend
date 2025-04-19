@@ -1,6 +1,6 @@
 # yjhv-backend
 
-Here's implementation of backend for our project for MSU physics faculty
+Here's implementation of backend for our project for university load of public places
 
 Virtual env:
 ```
@@ -13,12 +13,13 @@ source myevn/bin/activate
 colima start
 ```
 
-Запрос на докер
+Запуска приложения
 ```
+cd src
 docker-compose up --build
 ```
 
+Для примера получения результата в отдельной консольке надо прописать
 ```
-curl localhost:5001/room
 curl localhost:8080/rooms/0
 ```
