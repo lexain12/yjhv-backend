@@ -14,7 +14,7 @@ def upload_image():
     if file.filename == '':
         return jsonify({"error": "No selected file"}), 400
     
-    if file and file.filename.endswith('.png'):
+    if file and (file.filename.endswith('.png') or file.filename.endswith('.jpg')): 
         filename = file.filename
         file.save(os.path.join(UPLOAD_FOLDER, filename))
         return jsonify({"status": "success", "filename": filename}), 200

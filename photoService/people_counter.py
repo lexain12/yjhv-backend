@@ -15,12 +15,16 @@ RESULTS_DIR = Path("./results")
 RESULTS_DIR.mkdir(exist_ok=True, parents=True)
 
 class ImageHandler(FileSystemEventHandler):
+    def on_any_event(self, event):
+        print(f"Event type: {event.event_type} | Path: {event.src_path}")
     def on_created(self, event):
         if not event.is_directory:
+            print("on_create")
             self.process_image(Path(event.src_path))
 
     def process_image(self, src_path):
         try:
+            print(f"processing {src_path}")
             image = cv2.imread(str(src_path))
             if image is None:
                 return
@@ -44,6 +48,7 @@ if __name__ == "__main__":
 
     try:
         while True:
+            print("I am working")
             time.sleep(1)
     except KeyboardInterrupt:
         observer.stop()
