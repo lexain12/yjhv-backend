@@ -17,3 +17,8 @@ colima start
 ```
 docker-compose up --build
 ```
+
+```
+curl localhost:5001/room
+curl localhost:8080/rooms/0
+```
