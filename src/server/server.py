@@ -1,4 +1,5 @@
 from flask import Flask, jsonify, Response, abort
+from flask_cors import CORS
 import requests
 import threading
 import time
@@ -7,12 +8,13 @@ from xml.etree import ElementTree as ET
 import re
 
 app = Flask(__name__)
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 room_status = {}
 
 DOCKER_CONTAINER_URL = os.getenv("MOCK_URL", "http://localhost:5001")
 
-# preloading schemes of campus and buildings
+# Preloading schemes of campus and buildings
 SCHEME_DIR = "schemes"
 SCHEMES = []
 
@@ -28,21 +30,7 @@ def preload_schemes():
 
 preload_schemes()
 
-# Goes to docker container of our ML team and get current info about room
-def update_room_status(name: str):
-    while True:
-        try:
-            roomUrl = DOCKER_CONTAINER_URL + "/" + name
-            response = requests.get(roomUrl, timeout=5)
-            if response.status_code == 200:
-                return Response.json()
-            else:
-                print("Ошибка при получении данных:", response.status_code)
-        except Exception as e:
-            print("Ошибка подключения к контейнеру:", e)
-        time.sleep(5)  # каждые 60 секунд
-
-# 
+# Extract mtg names from SVG content
 def extract_mtg_names(svg_content: str) -> list[str]:
     tree = ET.fromstring(svg_content)
     mtg_names = []
@@ -73,13 +61,12 @@ def get_room_info(scheme_id):
         extracted_names = extract_mtg_names(SCHEMES[scheme_id]["content"])
         roomArray = []
         for roomName in extracted_names:
-            print(roomName)
-            roomArray.append(update_room_status(roomName))
+            # Здесь можно добавить логику получения реального статуса комнаты
+            roomArray.append({"id": roomName, "name": roomName, "count": 10})
 
         return jsonify(roomArray)
 
-    return jsonify({"Invalid scheme id"}), 500
-    # abort(404, description="Scheme not found")
+    return jsonify({"error": "Invalid scheme id"}), 500
 
 
 if __name__ == '__main__':
