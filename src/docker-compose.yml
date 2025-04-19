@@ -1,0 +1,16 @@
+services:
+  main-server:
+    build:
+      context: ./server
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mock-server
+    environment:
+      - MOCK_URL=http://mock-server:5001
+
+  mock-server:
+    build:
+      context: ./mock
+    ports:
+      - "5001:5001"
