@@ -9,8 +9,7 @@ warnings.filterwarnings('ignore')
 
 
 
-def run(img_path):
-    
+def run(img_path):    
     device = torch.device('cpu')
     # get the P2PNet
     model = build_model()
