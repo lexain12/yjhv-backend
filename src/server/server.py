@@ -23,7 +23,6 @@ roomHandler = rh.RoomHandler("config/roomslist.csv")
 SCHEME_DIR = "schemes"
 SCHEMES = []
 
-# Preload SVG files into memory
 def preload_schemes():
     global SCHEMES
     SCHEMES.clear()
@@ -35,7 +34,6 @@ def preload_schemes():
 
 preload_schemes()
 
-# Extract mtg names from SVG content
 def extract_mtg_names(svg_content: str) -> list[str]:
     tree = ET.fromstring(svg_content)
     mtg_names = []
@@ -143,19 +141,32 @@ def get_room_info(scheme_id):
         # в дальнейшем хочу получать схемы через csv, a svg юзать как почва для заполнения инфы для csv
         # extracted_names = roomHandler.get_rooms_in_scheme(scheme_id)
         print(extracted_names)
-        roomArray = []
+        roomsOnSchemeArray = []
         for roomName in extracted_names:
-            # Здесь можно добавить логику получения реального статуса комнаты
-            currentLoad = 10
+            currentRoomLoad = 0
+            try:
+                response = requests.get(f"http://people_counter:32000/count/{roomName}")
+                if response.status_code == 200:
+                    currentRoomLoad = response.json().get("count", 0)
+                else:
+                    currentRoomLoad = -1
+                    print(f"[WARN] Не удалось получить count для {roomName}: {response}")
+            except Exception as e:
+                print(f"[ERROR] Ошибка при запросе к сервису count для {roomName}: {e}")
+                currentRoomLoad = 0
             maxLoad = roomHandler.get_max_users(scheme_id, roomName)
-            roomArray.append({"id": roomName, 
-                              "name": roomName, 
-                              "count": currentLoad, 
-                              "maxCount": maxLoad, 
-                              "percentLoad": f"{currentLoad / maxLoad * 100:.1f}"
+            roomsOnSchemeArray.append({
+                "id": roomName, 
+                "room_id": roomName,
+                "room_name": roomHandler.get_room_label(scheme_id, roomName),
+                "category_id": roomHandler.get_room_category_id(scheme_id, roomName),
+                "category_name": roomHandler.get_room_category_label(scheme_id, roomName),
+                "count": currentRoomLoad, 
+                "maxCount": maxLoad, 
+                "percentLoad": f"{currentRoomLoad / maxLoad}"
             })
 
-        return jsonify(roomArray)
+        return jsonify(roomsOnSchemeArray)
 
     return jsonify({"error": "Invalid scheme id"}), 500
 

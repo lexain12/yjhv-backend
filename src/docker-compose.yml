@@ -4,13 +4,13 @@ services:
       context: ./server
     ports:
       - "8080:8080"
-    depends_on:
-      - mock-server
     environment:
       - MOCK_URL=http://mock-server:5001
+    networks:
+      - main
 
-  mock-server:
-    build:
-      context: ./mock
-    ports:
-      - "5001:5001"
+networks:
+  main:
+    name: yjhv
+    external: true
+
