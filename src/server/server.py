@@ -87,6 +87,19 @@ def get_scheme_file(scheme_id):
         return Response(SCHEMES[scheme_id]["content"], mimetype='image/svg+xml')
     abort(404, description="Scheme not found")
 
+import json
+def read_json_file_as_string(filename):
+    with open(filename, 'r') as f:
+        data = f.read()
+    return data
+
+@app.route("/prediction/<room_name>", methods=["GET"])
+def get_prediction(room_name):
+    
+    return read_json_file_as_string("./config/" + room_name + ".json")
+    abort(404, description="Scheme not found")
+
+# Get current rooms occupation for specified course from 1 to 5
 @app.route("/schedule/<int:course_id>", methods=["GET"])
 def get_schedule(course_id):
     schedule = get_schema_schedule(course_id)
@@ -161,7 +174,6 @@ def get_room_info(scheme_id):
         return jsonify(roomsOnSchemeArray)
 
     return jsonify({"error": "Invalid scheme id"}), 500
-
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)
