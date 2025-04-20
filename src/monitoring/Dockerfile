@@ -18,5 +18,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Скопируем весь проект
 COPY . .
 
-# Запуск скрипта по умолчанию
-CMD ["python", "run_detection.py"]
+RUN mkdir -p /app/images /app/results
+
+EXPOSE 32000
+
+CMD ["sh", "-c", "python3 api_gateway.py & python3 -u people_counter.py"]
