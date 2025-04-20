@@ -148,7 +148,7 @@ def get_room_info(scheme_id):
                 currentRoomLoad = 0
             maxLoad = roomHandler.get_max_users(scheme_id, roomName)
             roomsOnSchemeArray.append({
-                "id": roomName, 
+                "scheme_id": scheme_id, 
                 "room_id": roomName,
                 "room_name": roomHandler.get_room_label(scheme_id, roomName),
                 "category_id": roomHandler.get_room_category_id(scheme_id, roomName),
