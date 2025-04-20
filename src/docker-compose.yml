@@ -6,11 +6,10 @@ services:
       - "8080:8080"
     environment:
       - MOCK_URL=http://mock-server:5001
-    networks:
-      - main
+  photo-service:
+    build: 
+      context: ./photoService
+    ports:
+      - "32000:32000"
 
-networks:
-  main:
-    name: yjhv
-    external: true
 

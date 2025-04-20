@@ -19,7 +19,6 @@ DOCKER_CONTAINER_URL = os.getenv("MOCK_URL", "http://localhost:5001")
 
 roomHandler = rh.RoomHandler("config/roomslist.csv")
 
-# Preloading schemes of campus and buildings
 SCHEME_DIR = "schemes"
 SCHEMES = []
 
@@ -47,7 +46,6 @@ def extract_mtg_names(svg_content: str) -> list[str]:
     
     return mtg_names
 
-# Parse html schedule and serialize it into dictionary
 def get_schema_schedule(schema_id):
     with open("schedules/" + str(schema_id) + ".html", 'r', encoding='utf-8') as file:
         html_content = file.read()
@@ -89,7 +87,6 @@ def get_scheme_file(scheme_id):
         return Response(SCHEMES[scheme_id]["content"], mimetype='image/svg+xml')
     abort(404, description="Scheme not found")
 
-# Get current rooms occupation for specified course from 1 to 5
 @app.route("/schedule/<int:course_id>", methods=["GET"])
 def get_schedule(course_id):
     schedule = get_schema_schedule(course_id)
@@ -101,7 +98,6 @@ def get_schedule(course_id):
             raw = entry['time_range']
             day_str = entry['day']
 
-            # Clean and parse time range
             cleaned = raw.replace('\u00a0', ' ')
             parts = [p.strip() for p in cleaned.split('-') if ':' in p]
 
@@ -112,12 +108,10 @@ def get_schedule(course_id):
             start_time = datetime.strptime(start_str, "%H:%M").time()
             end_time = datetime.strptime(end_str, "%H:%M").time()
 
-            # Get day of the week and time
             now = datetime.now()
             current_time = now.time()
             current_weekday = now.weekday() + 1  # Monday=1, Sunday=7
 
-            # Get day index
             day_index = int(day_str.replace("day", ""))
 
             # Check for the proper day
@@ -138,8 +132,6 @@ def get_schedule(course_id):
 def get_room_info(scheme_id):
     if 0 <= scheme_id < len(SCHEMES):
         extracted_names = extract_mtg_names(SCHEMES[scheme_id]["content"])
-        # в дальнейшем хочу получать схемы через csv, a svg юзать как почва для заполнения инфы для csv
-        # extracted_names = roomHandler.get_rooms_in_scheme(scheme_id)
         print(extracted_names)
         roomsOnSchemeArray = []
         for roomName in extracted_names:
