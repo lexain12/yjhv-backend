@@ -47,7 +47,7 @@ if __name__ == "__main__":
     try:
         while True:
             print("I am working")
-            time.sleep(1)
+            time.sleep(100)
     except KeyboardInterrupt:
         observer.stop()
     observer.join()

@@ -19,11 +19,9 @@ DOCKER_CONTAINER_URL = os.getenv("MOCK_URL", "http://localhost:5001")
 
 roomHandler = rh.RoomHandler("config/roomslist.csv")
 
-# Preloading schemes of campus and buildings
 SCHEME_DIR = "schemes"
 SCHEMES = []
 
-# Preload SVG files into memory
 def preload_schemes():
     global SCHEMES
     SCHEMES.clear()
@@ -35,7 +33,6 @@ def preload_schemes():
 
 preload_schemes()
 
-# Extract mtg names from SVG content
 def extract_mtg_names(svg_content: str) -> list[str]:
     tree = ET.fromstring(svg_content)
     mtg_names = []
@@ -49,7 +46,6 @@ def extract_mtg_names(svg_content: str) -> list[str]:
     
     return mtg_names
 
-# Parse html schedule and serialize it into dictionary
 def get_schema_schedule(schema_id):
     with open("schedules/" + str(schema_id) + ".html", 'r', encoding='utf-8') as file:
         html_content = file.read()
@@ -91,6 +87,18 @@ def get_scheme_file(scheme_id):
         return Response(SCHEMES[scheme_id]["content"], mimetype='image/svg+xml')
     abort(404, description="Scheme not found")
 
+import json
+def read_json_file_as_string(filename):
+    with open(filename, 'r') as f:
+        data = f.read()
+    return data
+
+@app.route("/prediction/<room_name>", methods=["GET"])
+def get_prediction(room_name):
+    
+    return read_json_file_as_string("./config/" + room_name + ".json")
+    abort(404, description="Scheme not found")
+
 # Get current rooms occupation for specified course from 1 to 5
 @app.route("/schedule/<int:course_id>", methods=["GET"])
 def get_schedule(course_id):
@@ -103,7 +111,6 @@ def get_schedule(course_id):
             raw = entry['time_range']
             day_str = entry['day']
 
-            # Clean and parse time range
             cleaned = raw.replace('\u00a0', ' ')
             parts = [p.strip() for p in cleaned.split('-') if ':' in p]
 
@@ -114,12 +121,10 @@ def get_schedule(course_id):
             start_time = datetime.strptime(start_str, "%H:%M").time()
             end_time = datetime.strptime(end_str, "%H:%M").time()
 
-            # Get day of the week and time
             now = datetime.now()
             current_time = now.time()
             current_weekday = now.weekday() + 1  # Monday=1, Sunday=7
 
-            # Get day index
             day_index = int(day_str.replace("day", ""))
 
             # Check for the proper day
@@ -140,25 +145,35 @@ def get_schedule(course_id):
 def get_room_info(scheme_id):
     if 0 <= scheme_id < len(SCHEMES):
         extracted_names = extract_mtg_names(SCHEMES[scheme_id]["content"])
-        # в дальнейшем хочу получать схемы через csv, a svg юзать как почва для заполнения инфы для csv
-        # extracted_names = roomHandler.get_rooms_in_scheme(scheme_id)
         print(extracted_names)
-        roomArray = []
+        roomsOnSchemeArray = []
         for roomName in extracted_names:
-            # Здесь можно добавить логику получения реального статуса комнаты
-            currentLoad = 10
+            currentRoomLoad = 0
+            try:
+                response = requests.get(f"http://people_counter:32000/count/{roomName}")
+                if response.status_code == 200:
+                    currentRoomLoad = response.json().get("count", 0)
+                else:
+                    currentRoomLoad = -1
+                    print(f"[WARN] Не удалось получить count для {roomName}: {response}")
+            except Exception as e:
+                print(f"[ERROR] Ошибка при запросе к сервису count для {roomName}: {e}")
+                currentRoomLoad = 0
             maxLoad = roomHandler.get_max_users(scheme_id, roomName)
-            roomArray.append({"id": roomName, 
-                              "name": roomName, 
-                              "count": currentLoad, 
-                              "maxCount": maxLoad, 
-                              "percentLoad": f"{currentLoad / maxLoad * 100:.1f}"
+            roomsOnSchemeArray.append({
+                "scheme_id": scheme_id, 
+                "room_id": roomName,
+                "room_name": roomHandler.get_room_label(scheme_id, roomName),
+                "category_id": roomHandler.get_room_category_id(scheme_id, roomName),
+                "category_name": roomHandler.get_room_category_label(scheme_id, roomName),
+                "count": currentRoomLoad, 
+                "maxCount": maxLoad, 
+                "percentLoad": f"{currentRoomLoad / maxLoad}"
             })
 
-        return jsonify(roomArray)
+        return jsonify(roomsOnSchemeArray)
 
     return jsonify({"error": "Invalid scheme id"}), 500
-
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)

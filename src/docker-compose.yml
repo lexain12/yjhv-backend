@@ -4,13 +4,14 @@ services:
       context: ./server
     ports:
       - "8080:8080"
-    depends_on:
-      - mock-server
     environment:
       - MOCK_URL=http://mock-server:5001
-
-  mock-server:
-    build:
-      context: ./mock
+  photo-service:
+    hostname:
+      people_counter
+    build: 
+      context: ./photoService
     ports:
-      - "5001:5001"
+      - "32000:32000"
+
+

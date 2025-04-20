@@ -1,8 +1,8 @@
-scheme_id,      room_name,          room_categoty,      max_load
-0,              niiyaf,             institute,          30
-0,              wardrobe1,          wardrobe,           30
-1,              library1,           library,            50
-1,              lab1,               laboratory,         20
-2,              dining_room1,       dining_room,        60
-2,              dining_room2,       dining_room,        60
-2,              coworking_room1,    coworking_room,     15
+scheme_id,      room_id,            room_label,         category_id,        category_label,     max_load
+0,              niiyaf,             НИИЯФ,              institute,          Институты,          30
+0,              wardrobe1,          Гардероб 1,         wardrobe,           Гардеробы,          1
+1,              library1,           Библиотека 1,       library,            Библиотеки,         50
+1,              lab1,               Лаборатория,        laboratory,         Лаборатории,        20
+2,              dining_room1,       Столовая 1,         dining_room,        Столовые,           60
+2,              dining_room2,       Столовая 2,         dining_room,        Столовые,           60
+2,              coworking_room1,    Коворкинг,          coworking_room,     Коворкинги,         15

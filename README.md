@@ -33,3 +33,33 @@ curl localhost:8080/rooms/0
 "/schedule/<int:course_id>" - получение расписания аудитории
 
 "/rooms/<int:scheme_id>" - получение информации обо всех комнатах в схеме
+
+//---------------------------//
+
+For running photo service:
+```
+curl -X PUT -F "file=@test.jpg" http://localhost:32000/upload
+```
+
+For running server:
+```
+docker-compose up --build
+```
+
+For running photoService:
+```
+docker run --net yjhv --hostname people_counter --name people_counter -it --rm -p 32000:32000 -v $(pwd)/images:/app/images -v $(pwd)/results:/app/results people-counter
+```
+
+Example:
+```
+curl localhost:8080/rooms/0
+```
+
+
+(For some fixes, outdated)
+For curl requests:
+```
+docker exec -it 3f5cd90c3bad /bin/bash
+curl people_counter:32000/count/people
+```
